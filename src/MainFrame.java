@@ -26,19 +26,32 @@ public class MainFrame implements Runnable {
         long currentTime = System.nanoTime();
         long previousTime = currentTime;
         double delta = 0.0;
-        double FPS = 60;
+        double delta2 = 0.0;
+        double delta3 = 0.0;
+        double FPS = 90;
         double drawInterval = 1000000000.0 / FPS;
         while (true) {
             currentTime = System.nanoTime();
 
-            double timePassed = (double) (currentTime - previousTime) / drawInterval;
+            double timePassed = (double) (currentTime - previousTime);
             // the time between now and the last time this looped
-            delta += timePassed;
+            delta += timePassed / drawInterval;
+            delta2 += timePassed;
+            delta3 += timePassed;
 
             if (delta >= 1) {
                 panel.repaint();  // we don't ever call "paintComponent" directly, but call this to refresh the panel
                 delta = 0;
             }
+            if (delta2 >= 1000000) {
+                panel.playerMove();
+                delta2 = 0;
+            }
+            if (delta3 >= 100000) {
+                panel.shellMove();
+                delta3 = 0;
+            }
+
             previousTime = currentTime;
         }
     }
