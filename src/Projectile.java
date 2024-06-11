@@ -10,8 +10,8 @@ public class Projectile extends Sprite{
     private double angle;
     private double drag;
 
-    public Projectile(int maxDamage, int minRange, int optimalRange, int maxRange, double initialSpeed, double angle, double drag, int x, int y, ArrayList<Sprite> collidables, Rectangle hitBox, Rectangle map) {
-        super(x, y, hitBox.width, hitBox.height, collidables, map);
+    public Projectile(int maxDamage, int minRange, int optimalRange, int maxRange, double initialSpeed, double angle, double drag, int x, int y, ArrayList<ArrayList<Grid>> allGrids, Rectangle hitBox, Rectangle map) {
+        super(x, y, hitBox.width, hitBox.height, allGrids, map);
         this.maxDamage = maxDamage;
         this.minRange = minRange;
         this.optimalRange = optimalRange;

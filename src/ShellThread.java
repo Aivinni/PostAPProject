@@ -35,7 +35,7 @@ public class ShellThread implements Runnable {
                         }
 
                     }
-                    player.weapon.fire((int) player.getX(), (int) player.getY(), game.getCollidables(), game.getMap());
+                    player.weapon.fire((int) player.getX(), (int) player.getY(), game.grids, game.getMap());
                 }
             }
 

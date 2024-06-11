@@ -112,7 +112,7 @@ public class Weapon implements ActionListener {
         return reloadCounter;
     }
 
-    public void fire(int x, int y, ArrayList<Sprite> collidables, Rectangle map) { }
+    public void fire(int x, int y, ArrayList<ArrayList<Grid>> allGrids, Rectangle map) { }
 
     public void reload() {
         reloadTimer.start();

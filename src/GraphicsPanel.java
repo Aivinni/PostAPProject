@@ -184,7 +184,10 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
                                     for (int k = 0; k < game.mushrooms.size(); k++) {
                                         game.mushrooms.get(k).remove(collidedMushroom);
                                     }
-                                    game.getCollidables().remove(collidedMushroom);
+                                    for (int k = 0; k < collidedMushroom.grids.size(); k++) {
+                                        collidedMushroom.grids.get(k).getCollidables().remove(collidedMushroom);
+                                    }
+
                                     projectile.setCollision(false);
                                     projectile.calcDamage();
                                 }

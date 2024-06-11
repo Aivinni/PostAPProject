@@ -13,8 +13,8 @@ public class Player extends Sprite implements ActionListener {
     public Weapon weapon;
     public Weapon shotgun, machineGun, sniperRifle;
 
-    public Player(int x, int y, int moveUpKey, int moveDownKey, int moveLeftKey, int moveRightKey, int sprintKey, Weapon weapon, ArrayList<Sprite> collidables, Rectangle map) {
-        super(x, y, 10, 10, collidables, map);
+    public Player(int x, int y, int moveUpKey, int moveDownKey, int moveLeftKey, int moveRightKey, int sprintKey, Weapon weapon, ArrayList<ArrayList<Grid>> allGrids, Rectangle map) {
+        super(x, y, 10, 10, allGrids, map);
         this.moveUpKey = moveUpKey;
         this.moveDownKey = moveDownKey;
         this.moveLeftKey = moveLeftKey;
