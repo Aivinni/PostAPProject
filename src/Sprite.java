@@ -1,13 +1,12 @@
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class Sprite {
     private double x, y;
     private Rectangle spriteRect;
     public final ArrayList<ArrayList<Grid>> allGrids;
     public final ArrayList<Grid> grids;
-    private Rectangle map;
+    private final Rectangle map;
     private boolean collision;
     private boolean offMap;
     private ArrayList<Sprite> collidedObjects;
@@ -56,10 +55,6 @@ public class Sprite {
         return spriteRect;
     }
 
-    public void setSpriteRect(Rectangle spriteRect) {
-        this.spriteRect = spriteRect;
-    }
-
     public void setCollision(boolean collision) {
         this.collision = collision;
     }
@@ -104,11 +99,13 @@ public class Sprite {
             if (grid != null) {
                 for (int j = 0; j < grid.getCollidables().size(); j++) {
                     Sprite object = grid.getCollidables().get(j);
-                    Rectangle rectangle = object.getSpriteRect();
-                    if (rectangle != null && object != this && rectangle.intersects(spriteRect)){
-                        collision = true;
-                        object.collision = true;
-                        collidedObjects.add(object);
+                    if (object != null) {
+                        Rectangle rectangle = object.getSpriteRect();
+                        if (rectangle != null && object != this && rectangle.intersects(spriteRect)){
+                            collision = true;
+                            object.collision = true;
+                            collidedObjects.add(object);
+                        }
                     }
                 }
             }
