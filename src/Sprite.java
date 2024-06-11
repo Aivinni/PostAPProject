@@ -7,7 +7,8 @@ public class Sprite {
     private ArrayList<Sprite> collidables;
     private Rectangle map;
     private boolean collision;
-    private Sprite collidedObject;
+    private boolean offMap;
+    private ArrayList<Sprite> collidedObjects;
 
 
     public Sprite(double x, double y, int width, int height, ArrayList<Sprite> collidables, Rectangle map) {
@@ -16,6 +17,22 @@ public class Sprite {
         spriteRect = new Rectangle((int) x - width / 2, (int) y - height / 2, width, height);
         this.collidables = collidables;
         this.map = map;
+
+        offMap = false;
+
+        collidedObjects = new ArrayList<>();
+
+        for (int i = 0; i < collidables.size(); i++) {
+            Sprite object = collidables.get(i);
+            if (object != null) {
+                Rectangle rectangle = object.getSpriteRect();
+                if (object != this && rectangle.intersects(spriteRect)){
+                    collision = true;
+                    object.collision = true;
+                    collidedObjects.add(object);
+                }
+            }
+        }
     }
 
     public double getX() {
@@ -26,6 +43,14 @@ public class Sprite {
         return y;
     }
 
+    public ArrayList<Sprite> getCollidables() {
+        return collidables;
+    }
+
+    public Rectangle getMap() {
+        return map;
+    }
+
     public Rectangle getSpriteRect() {
         return spriteRect;
     }
@@ -34,47 +59,53 @@ public class Sprite {
         this.spriteRect = spriteRect;
     }
 
+    public void setCollision(boolean collision) {
+        this.collision = collision;
+    }
+
     public boolean collision() {
         return collision;
     }
 
-    public Sprite getCollidedObject() {
-        return collidedObject;
+    public boolean isOffMap() {
+        return offMap;
+    }
+
+    public ArrayList<Sprite> getCollidedObjects() {
+        return collidedObjects;
     }
 
     public void moveHorizontally(double x) {
         this.x += x;
         spriteRect = new Rectangle((int) this.x - spriteRect.width / 2, (int) this.y - spriteRect.height / 2, spriteRect.width, spriteRect.height);
-        for (Sprite object : collidables) {
-            Rectangle rectangle = object.getSpriteRect();
-            if (object != this && rectangle.intersects(spriteRect)){
-                collision = true;
-                collidedObject = object;
-                collidedObject.collision = true;
-                this.x -= x;
-            }
-        }
+        detectCollision();
         if (!map.contains(spriteRect)) {
             this.x -= x;
-            collision = true;
+            offMap = true;
         }
     }
 
     public void moveVertically(double y) {
         this.y += y;
         spriteRect = new Rectangle((int) this.x - spriteRect.width / 2, (int) this.y - spriteRect.height / 2, spriteRect.width, spriteRect.height);
-        for (Sprite object : collidables) {
-            Rectangle rectangle = object.getSpriteRect();
-            if (object != this && rectangle.intersects(spriteRect)){
-                collision = true;
-                collidedObject = object;
-                collidedObject.collision = true;
-                this.y -= y;
-            }
-        }
+        detectCollision();
         if (!map.contains(spriteRect)) {
             this.y -= y;
-            collision = true;
+            offMap = true;
+        }
+    }
+
+    public void detectCollision() {
+        for (int i = 0; i < collidables.size(); i++) {
+            Sprite object = collidables.get(i);
+            if (object != null) {
+                Rectangle rectangle = object.getSpriteRect();
+                if (object != this && rectangle.intersects(spriteRect)){
+                    collision = true;
+                    object.collision = true;
+                    collidedObjects.add(object);
+                }
+            }
         }
     }
 }

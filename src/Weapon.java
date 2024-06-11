@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class Weapon implements ActionListener {
     private final Image image;
-    private double angle;
+    public double angle;
     private final ArrayList<Projectile> projectiles;
     private final int maxDamage;
     private final int minRange, optimalRange, maxRange;
@@ -22,7 +22,7 @@ public class Weapon implements ActionListener {
     private boolean refire;
 
 
-    public Weapon(String imageFile, double angle, int maxDamage, int minRange, int optimalRange, int maxRange, double initialSpeed, double drag, int maxAmmo, int reload) {
+    public Weapon(String imageFile, double angle, int maxDamage, int minRange, int optimalRange, int maxRange, double initialSpeed, double drag, int maxAmmo, int reload, int refireTime, int ammo) {
         ImageIcon imageIcon = new ImageIcon(imageFile);
         image = imageIcon.getImage();
         this.angle = angle;
@@ -37,12 +37,12 @@ public class Weapon implements ActionListener {
         projectiles = new ArrayList<>();
 
         this.maxAmmo = maxAmmo;
-        ammo = maxAmmo;
+        this.ammo = ammo;
         this.reload = reload;
         reloadCounter = 0;
 
 
-        refireTimer = new Timer(1000, this);
+        refireTimer = new Timer(refireTime, this);
         reloadTimer = new Timer(1, this);
 
         refire = true;
@@ -116,6 +116,7 @@ public class Weapon implements ActionListener {
 
     public void reload() {
         reloadTimer.start();
+        ammo = 0;
     }
 
     @Override

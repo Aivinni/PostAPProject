@@ -11,6 +11,7 @@ public class Player extends Sprite implements ActionListener {
     public int energy;
     public boolean resting;
     public Weapon weapon;
+    public Weapon shotgun, machineGun, sniperRifle;
 
     public Player(int x, int y, int moveUpKey, int moveDownKey, int moveLeftKey, int moveRightKey, int sprintKey, Weapon weapon, ArrayList<Sprite> collidables, Rectangle map) {
         super(x, y, 10, 10, collidables, map);
@@ -23,6 +24,9 @@ public class Player extends Sprite implements ActionListener {
         energy = energyMax;
         resting = false;
         this.weapon = weapon;
+        shotgun = weapon;
+        machineGun = new MachineGun(1000);
+        sniperRifle = new SniperRifle(10);
 
         timer = new Timer(10000, this);
     }

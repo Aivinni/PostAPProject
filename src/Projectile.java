@@ -22,6 +22,10 @@ public class Projectile extends Sprite{
         this.drag = drag;
     }
 
+    public double getAngle() {
+        return angle;
+    }
+
     public double getDamage() {
         return damage;
     }
@@ -30,7 +34,7 @@ public class Projectile extends Sprite{
         if (distance > minRange && distance < optimalRange) {
             damage = maxDamage;
         } else if (distance > optimalRange && distance < maxRange) {
-            damage = Math.min(maxDamage, (maxDamage - (distance - optimalRange)) * speed);
+            damage = maxDamage;
         } else {
             damage = 0;
         }
@@ -41,7 +45,7 @@ public class Projectile extends Sprite{
         moveVertically(speed * Math.sin(angle));
         distance += speed;
         if (speed > 0) {
-            speed -= drag;
+            speed -= (drag * speed * speed) * 4;
         }
     }
 }

@@ -20,14 +20,22 @@ public class MainFrame implements Runnable {
         // start thread, required for animation
         Thread thread = new Thread(this);
         thread.start();
+
+        MushroomThread mushroomThread = new MushroomThread(panel);
+        Thread mushroomSpreadThread = new Thread(mushroomThread);
+        mushroomSpreadThread.start();
+
+        ShellThread shellThread = new ShellThread(panel);
+        Thread shellMoveThread = new Thread(shellThread);
+        shellMoveThread.start();
     }
 
+    @Override
     public void run() {
         long currentTime = System.nanoTime();
         long previousTime = currentTime;
         double delta = 0.0;
         double delta2 = 0.0;
-        double delta3 = 0.0;
         double FPS = 90;
         double drawInterval = 1000000000.0 / FPS;
         while (true) {
@@ -37,7 +45,6 @@ public class MainFrame implements Runnable {
             // the time between now and the last time this looped
             delta += timePassed / drawInterval;
             delta2 += timePassed;
-            delta3 += timePassed;
 
             if (delta >= 1) {
                 panel.repaint();  // we don't ever call "paintComponent" directly, but call this to refresh the panel
@@ -46,10 +53,6 @@ public class MainFrame implements Runnable {
             if (delta2 >= 1000000) {
                 panel.playerMove();
                 delta2 = 0;
-            }
-            if (delta3 >= 100000) {
-                panel.shellMove();
-                delta3 = 0;
             }
 
             previousTime = currentTime;

@@ -5,12 +5,13 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class GraphicsPanel extends JPanel implements KeyListener, MouseListener, MouseMotionListener {
-    private final Game game;
+    public final Game game;
     private final boolean[] pressedKeys;
     private Point mouseLocation;
     private long lastFrameTime;
     private long thisFrameTime;
     private int minRange, optimalRange, maxRange;
+    private boolean leftMouseHeld;
 
     public GraphicsPanel() {
         setBackground(Color.BLACK);
@@ -22,6 +23,8 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
         maxRange = weapon.getMaxRange();
 
         pressedKeys = new boolean[128];
+
+        leftMouseHeld = false;
 
         addKeyListener(this);
         addMouseListener(this);
@@ -61,13 +64,15 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
         g.fillRect(MainFrame.windowWidth - 375, 25, 350, 100);
         if (player.weapon instanceof Shotgun) {
             g.drawImage(player.weapon.getImage(),MainFrame.windowWidth - 375, 0, null);
+        } else if (player.weapon instanceof MachineGun) {
+            g.drawImage(player.weapon.getImage(),MainFrame.windowWidth - 375, -50, null);
+        } else if (player.weapon instanceof SniperRifle) {
+            g.drawImage(player.weapon.getImage(),MainFrame.windowWidth - 375, 30, null);
+
         }
         g.setColor(Color.WHITE);
         g.setFont(new Font("Serif", Font.BOLD, 12));
-        g.drawString(player.weapon.getAmmo() + "/" + player.weapon.maxAmmo, MainFrame.windowWidth - 50, 110);
-        if (player.weapon.getReloadCounter() > 0) {
-            g.drawString("Reload: " + ((player.weapon.getReload() - player.weapon.getReloadCounter()) / 1000.0), MainFrame.windowWidth - 150, 110);
-        }
+        g.drawString(player.weapon.getAmmo() + "/" + player.weapon.maxAmmo, MainFrame.windowWidth - 75, 110);
 
         // Player sprite
         Rectangle r = player.getSpriteRect();
@@ -113,23 +118,40 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
                     endY = (int) Math.max(mouseLocation.y - (lineDistance - maxRange) * (sine), mouseLocation.y);
                 }
 
-
                 g.drawLine((int) (mouseLocation.x - (lineDistance - optimalRange) * (cosine)), (int) (mouseLocation.y - (lineDistance - optimalRange) * (sine)), endX, endY);
                 g.setColor(Color.RED);
                 g.fillOval(mouseLocation.x - 2, mouseLocation.y - 2, 4, 4);
             }
+            if (player.weapon.getReloadCounter() > 0) {
+                g.setColor(Color.GREEN);
+                g.drawArc(mouseLocation.x - 4, mouseLocation.y - 4, 8, 8, 0, (int) (((double) player.weapon.getReloadCounter() / player.weapon.getReload()) * 360));
+            }
         }
 
+        // Draw projectiles
         g.setColor(Color.YELLOW);
         ArrayList<Projectile> projectiles = player.weapon.getProjectiles();
         if (projectiles != null) {
             for (int i = 0; i < projectiles.size(); i++) {
                 Projectile shell = projectiles.get(i);
-                g.drawRect((int) shell.getX(), (int) shell.getY(), 1, 1);
+                if (player.weapon instanceof SniperRifle) {
+                    g.fillRect((int) shell.getX(), (int) shell.getY(), 2, 2);
+                } else {
+                    g.fillRect((int) shell.getX(), (int) shell.getY(), 1, 1);
+                }
+
             }
         }
 
-
+        // Draw mushrooms
+        Color brown = new Color(255, 255, 255);
+        g.setColor(brown);
+        ArrayList<Mushroom> mushrooms = game.mushrooms;
+        for (int i = 0; i < mushrooms.size(); i++) {
+            Mushroom mushroom = mushrooms.get(i);
+            Rectangle mushroomRect = mushroom.getSpriteRect();
+            g.fillRect(mushroomRect.x, mushroomRect.y, mushroomRect.width, mushroomRect.height);
+        }
     }
 
     public void playerMove() {
@@ -139,10 +161,40 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
         ArrayList<Projectile> projectiles = game.player.weapon.getProjectiles();
         if (projectiles != null) {
             for (int i = 0; i < projectiles.size(); i++) {
-                projectiles.get(i).move();
-                if (projectiles.get(i).collision()) {
+                Projectile projectile = projectiles.get(i);
+                projectile.move();
+                if (projectile.isOffMap()){
                     projectiles.remove(i);
                     i--;
+                } else {
+                    if (projectile.collision()) {
+                        ArrayList<Sprite> collidedObjects = projectile.getCollidedObjects();
+                        for (int j = 0; j < collidedObjects.size(); j++) {
+                            if (collidedObjects.get(j) instanceof Mushroom collidedMushroom) {
+                                projectile.calcDamage();
+
+                                System.out.println((double) collidedMushroom.getHP() / projectile.getDamage());
+                                System.out.println((double) collidedMushroom.getHP());
+                                System.out.println(projectile.getDamage());
+
+                                if (Math.random() < ((double) collidedMushroom.getHP() / projectile.getDamage())) {
+                                    game.player.weapon.getProjectiles().remove(projectile);
+                                    if (projectile instanceof SniperProjectile) {
+                                        System.out.println("Sniper");
+                                    }
+                                    break;
+                                } else {
+                                    game.mushrooms.remove(collidedMushroom);
+                                    game.getCollidables().remove(collidedMushroom);
+                                    projectile.setCollision(false);
+                                    projectile.calcDamage();
+
+                                    System.out.println("Collision");
+                                }
+                            }
+                        }
+
+                    }
                 }
             }
         }
@@ -158,6 +210,17 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
         pressedKeys[key] = true;
         if (pressedKeys[KeyEvent.VK_R]) {
             game.player.weapon.reload();
+        } else if (pressedKeys[KeyEvent.VK_E]) {
+            if (game.player.weapon instanceof Shotgun) {
+                game.player.weapon = game.player.machineGun;
+            } else if (game.player.weapon instanceof MachineGun) {
+                game.player.weapon = game.player.sniperRifle;
+            } else if (game.player.weapon instanceof SniperRifle) {
+                game.player.weapon = game.player.shotgun;
+            }
+            minRange = game.player.weapon.getMinRange();
+            optimalRange = game.player.weapon.getOptimalRange();
+            maxRange = game.player.weapon.getMaxRange();
         }
     }
     public void keyReleased(KeyEvent e) {
@@ -167,16 +230,26 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
     @Override
     public void mouseClicked(MouseEvent e) { }
     @Override
-    public void mousePressed(MouseEvent e) { }
-    @Override
-    public void mouseReleased(MouseEvent e) {
+    public void mousePressed(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {  // left mouse click
-            Player player = game.player;
-            player.weapon.fire((int) player.getX(), (int) player.getY(), game.getCollidables(), game.getMap());
+            leftMouseHeld = true;
         } else if (e.getButton() == MouseEvent.BUTTON3){
             Point mouseClickLocation = e.getPoint();
         }
     }
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        if (e.getButton() == MouseEvent.BUTTON1) {  // left mouse click
+            leftMouseHeld = false;
+        } else if (e.getButton() == MouseEvent.BUTTON3){
+            Point mouseClickLocation = e.getPoint();
+        }
+    }
+
+    public boolean isLeftMouseHeld() {
+        return leftMouseHeld;
+    }
+
     @Override
     public void mouseEntered(MouseEvent e) {
         // Transparent 16 x 16 pixel cursor image.
