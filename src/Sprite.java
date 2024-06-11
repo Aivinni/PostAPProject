@@ -4,6 +4,8 @@ import java.util.ArrayList;
 public class Sprite {
     private double x, y;
     private Rectangle spriteRect;
+    private ArrayList<ArrayList<Grid>> allGrids;
+    private ArrayList<Grid> grids;
     private ArrayList<Sprite> collidables;
     private Rectangle map;
     private boolean collision;
@@ -14,7 +16,7 @@ public class Sprite {
     public Sprite(double x, double y, int width, int height, ArrayList<Sprite> collidables, Rectangle map) {
         this.x = x;
         this.y = y;
-        spriteRect = new Rectangle((int) x - width / 2, (int) y - height / 2, width, height);
+        spriteRect = new Rectangle((int) x, (int) y, width, height);
         this.collidables = collidables;
         this.map = map;
 

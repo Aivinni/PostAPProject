@@ -146,11 +146,13 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
         // Draw mushrooms
         Color brown = new Color(255, 255, 255);
         g.setColor(brown);
-        ArrayList<Mushroom> mushrooms = game.mushrooms;
+        ArrayList<ArrayList<Mushroom>> mushrooms = game.mushrooms;
         for (int i = 0; i < mushrooms.size(); i++) {
-            Mushroom mushroom = mushrooms.get(i);
-            Rectangle mushroomRect = mushroom.getSpriteRect();
-            g.fillRect(mushroomRect.x, mushroomRect.y, mushroomRect.width, mushroomRect.height);
+            for (int j = 0; j < mushrooms.get(i).size(); j++) {
+                Mushroom mushroom = mushrooms.get(i).get(j);
+                Rectangle mushroomRect = mushroom.getSpriteRect();
+                g.fillRect(mushroomRect.x, mushroomRect.y, mushroomRect.width, mushroomRect.height);
+            }
         }
     }
 
@@ -173,23 +175,18 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
                             if (collidedObjects.get(j) instanceof Mushroom collidedMushroom) {
                                 projectile.calcDamage();
 
-                                System.out.println((double) collidedMushroom.getHP() / projectile.getDamage());
-                                System.out.println((double) collidedMushroom.getHP());
-                                System.out.println(projectile.getDamage());
-
                                 if (Math.random() < ((double) collidedMushroom.getHP() / projectile.getDamage())) {
                                     game.player.weapon.getProjectiles().remove(projectile);
                                     if (projectile instanceof SniperProjectile) {
-                                        System.out.println("Sniper");
                                     }
                                     break;
                                 } else {
-                                    game.mushrooms.remove(collidedMushroom);
+                                    for (int k = 0; k < game.mushrooms.size(); k++) {
+                                        game.mushrooms.get(k).remove(collidedMushroom);
+                                    }
                                     game.getCollidables().remove(collidedMushroom);
                                     projectile.setCollision(false);
                                     projectile.calcDamage();
-
-                                    System.out.println("Collision");
                                 }
                             }
                         }
@@ -211,6 +208,7 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
         if (pressedKeys[KeyEvent.VK_R]) {
             game.player.weapon.reload();
         } else if (pressedKeys[KeyEvent.VK_E]) {
+            game.player.weapon.getProjectiles().clear();
             if (game.player.weapon instanceof Shotgun) {
                 game.player.weapon = game.player.machineGun;
             } else if (game.player.weapon instanceof MachineGun) {

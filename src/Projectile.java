@@ -34,7 +34,7 @@ public class Projectile extends Sprite{
         if (distance > minRange && distance < optimalRange) {
             damage = maxDamage;
         } else if (distance > optimalRange && distance < maxRange) {
-            damage = maxDamage;
+            damage = Math.min(maxDamage, maxDamage / (distance - optimalRange));
         } else {
             damage = 0;
         }
