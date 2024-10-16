@@ -165,6 +165,14 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
             for (int i = 0; i < projectiles.size(); i++) {
                 Projectile projectile = projectiles.get(i);
                 projectile.move();
+//                if (projectile.distance > optimalRange) {
+//                    System.out.println((projectile.distance - optimalRange) / (maxRange - optimalRange));
+//                    if (Math.random() < (projectile.distance - optimalRange) / (maxRange - optimalRange) && Math.random() < 0.01) {
+//                        projectiles.remove(i);
+//                        i--;
+//                        System.out.println("Removed");
+//                    }
+//                }
                 if (projectile.isOffMap()){
                     projectiles.remove(i);
                     i--;
@@ -183,6 +191,11 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
                                 } else {
                                     for (int k = 0; k < game.mushrooms.size(); k++) {
                                         game.mushrooms.get(k).remove(collidedMushroom);
+                                        if (game.mushrooms.get(k).isEmpty()) {
+                                            game.mushrooms.remove(k);
+                                            System.out.println(game.mushrooms.size());
+                                            break;
+                                        }
                                     }
                                     for (int k = 0; k < collidedMushroom.grids.size(); k++) {
                                         collidedMushroom.grids.get(k).getCollidables().remove(collidedMushroom);
@@ -193,7 +206,6 @@ public class GraphicsPanel extends JPanel implements KeyListener, MouseListener,
                                 }
                             }
                         }
-
                     }
                 }
             }

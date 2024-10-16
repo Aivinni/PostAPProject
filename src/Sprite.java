@@ -9,7 +9,7 @@ public class Sprite {
     private final Rectangle map;
     private boolean collision;
     private boolean offMap;
-    private ArrayList<Sprite> collidedObjects;
+    private final ArrayList<Sprite> collidedObjects;
 
 
     public Sprite(double x, double y, int width, int height, ArrayList<ArrayList<Grid>> allGrids, Rectangle map) {
@@ -24,16 +24,18 @@ public class Sprite {
 
         collidedObjects = new ArrayList<>();
 
-        for (int i = 0; i < allGrids.size(); i++) {
-            for (int j = 0; j < allGrids.get(i).size(); j++) {
-                if (spriteRect.intersects(allGrids.get(i).get(j))) {
-                    grids.add(allGrids.get(i).get(j));
+        if (!(this instanceof Projectile)) {
+            for (int i = 0; i < allGrids.size(); i++) {
+                for (int j = 0; j < allGrids.get(i).size(); j++) {
+                    if (spriteRect.intersects(allGrids.get(i).get(j))) {
+                        grids.add(allGrids.get(i).get(j));
+                    }
                 }
             }
-        }
 
-        for (int i = 0; i < grids.size(); i++) {
-            grids.get(i).getCollidables().add(this);
+            for (int i = 0; i < grids.size(); i++) {
+                grids.get(i).getCollidables().add(this);
+            }
         }
 
         detectCollision();
@@ -110,12 +112,15 @@ public class Sprite {
                 }
             }
         }
+        if (!map.contains(spriteRect)) {
+            offMap = true;
+        }
     }
 
     public void findGridCollision() {
         grids.clear();
-        for (int i = (int) this.x / 100; i < Math.min(allGrids.size(), ((int) this.x / 100) + 2); i++) {
-            for (int j = (int) this.y / 100; j < Math.min(allGrids.get(i).size(), ((int) this.y / 100) + 2); j++) {
+        for (int i = Math.max((int) this.x / 100, 0); i < Math.min(allGrids.size(), ((int) this.x / 100) + 2); i++) {
+            for (int j = Math.max((int) this.y / 100, 0); j < Math.min(allGrids.get(i).size(), ((int) this.y / 100) + 2); j++) {
                 if (spriteRect.intersects(allGrids.get(i).get(j))) {
                     grids.add(allGrids.get(i).get(j));
                 }
